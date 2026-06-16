@@ -56,7 +56,6 @@ class User(BaseModel):
         return v
     
 
-t1 = Transaction(user_id="draven", amount=500, category="Food", type="expense")
-print(t1)
+
 
 
