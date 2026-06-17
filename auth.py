@@ -29,11 +29,6 @@ def register_user(username: str, password: str, name: str, age: int):
     if age < 0 or age > 150:
         raise AgeOutOfRangeError("Age must be between 0 and 150.")
 
-    # Check if user already exists
-    existing_user = get_user_by_username(username)
-    if existing_user:
-        raise UserAlreadyExistsError(f"User with username '{username}' already exists.")
-
     # Hash the password
     hashed_password = hash_password(password)
 
@@ -50,9 +45,9 @@ def login_user(username: str, password: str):
 
     user = get_user_by_username(username)
     if not user:
-        raise UsernameNotFoundError(f"User with username '{username}' not found.")
+        raise UsernameNotFoundError(f"Invalid password or username.")
 
     if not verify_password(password, user['password']):
-        raise InvalidPasswordError("Invalid password.")
+        raise InvalidPasswordError("Invalid password or username.")
 
     return user

@@ -41,3 +41,7 @@ class AgeOutOfRangeError(ExpenseTrackerError):
 class InsufficientBalanceError(ExpenseTrackerError):
     """Exception raised when user doesn't have enough balance."""
     pass
+
+class UserNotFoundError(ExpenseTrackerError):
+    """Exception raised when a user is not found in the system."""
+    pass

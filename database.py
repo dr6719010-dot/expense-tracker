@@ -4,7 +4,9 @@ from datetime import datetime
 DB_NAME = "expense_tracker.db"
 
 def get_connection():
-    return sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME)
+    conn.execute('PRAGMA foreign_keys = ON')
+    return conn
 
 def create_tables():
     conn = get_connection()
@@ -141,3 +143,25 @@ def get_transactions_by_category(user_id, category):
             "created_at": row[6]
         })
     return transactions
+
+def save_transaction_and_update_balance(transaction, new_balance):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        conn.execute('BEGIN')
+
+        cursor.execute("""
+            INSERT INTO transactions (id, user_id, amount, category, type, description, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (transaction.id, transaction.user_id, transaction.amount,
+              transaction.category, transaction.type, transaction.description, transaction.created_at))
+
+        cursor.execute("UPDATE users SET balance = ? WHERE user_id = ?",
+                        (new_balance, transaction.user_id))
+
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
