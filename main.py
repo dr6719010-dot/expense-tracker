@@ -1,11 +1,14 @@
 
 import logging
 from pydantic import BaseModel
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 import os
 from database import get_connection, save_transaction_and_update_balance, get_transactions, get_transactions_by_category, user_by_id, create_tables
 from exceptions import InsufficientBalanceError, UserNotFoundError, ExpenseTrackerError
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 from tracker import log_expense, log_income, get_balance, get_spending_by_category
 from auth import register_user, login_user
@@ -49,6 +52,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/static", StaticFiles(directory="."), name="static")
+
+
+@app.get("/app", tags=["Frontend"])
+def frontend():
+    return FileResponse("BANKVAULT.html")
 
 @app.get("/", tags=["Health"])
 def home():
@@ -124,3 +134,4 @@ def create_income(request: IncomeRequest):
         return income
     except UserNotFoundError as e:
         logger.error(f"User not Present: {str(e)}")
+        raise HTTPException(status_code=404, detail=str(e))
